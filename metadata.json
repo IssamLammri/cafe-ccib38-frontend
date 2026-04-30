@@ -1,0 +1,6 @@
+{
+  "name": "Caisse Enregistreuse Tactile",
+  "description": "Une application de point de vente (POS) moderne et tactile bâtie avec Vue.js 3 et Tailwind CSS.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
