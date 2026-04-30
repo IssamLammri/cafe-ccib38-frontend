@@ -9,7 +9,9 @@ import {
   Banknote,
   Tag,
   ShoppingCart,
-  Loader2
+  Loader2,
+  ArrowUp,
+  ArrowDown
 } from 'lucide-vue-next';
 import api from '@/api/api';
 import VirtualKeyboard from '@/components/VirtualKeyboard.vue';
@@ -49,6 +51,21 @@ const setting = ref<Setting | null>(null);
 
 const loading = ref(true);
 const error = ref('');
+
+const productsContainer = ref<HTMLElement | null>(null);
+const cartContainer = ref<HTMLElement | null>(null);
+
+const scrollProducts = (direction: 'up' | 'down') => {
+  if (productsContainer.value) {
+    productsContainer.value.scrollBy({ top: direction === 'up' ? -400 : 400, behavior: 'smooth' });
+  }
+};
+
+const scrollCart = (direction: 'up' | 'down') => {
+  if (cartContainer.value) {
+    cartContainer.value.scrollBy({ top: direction === 'up' ? -200 : 200, behavior: 'smooth' });
+  }
+};
 
 const categories = computed(() => {
   const cats = new Set(products.value.map(p => p.category));
@@ -311,22 +328,32 @@ const getProductColor = (category: string) => {
       <div v-else-if="error" class="flex-1 flex items-center justify-center">
         <p class="text-red-500 font-bold text-xl">{{ error }}</p>
       </div>
-      <div v-else class="flex-1 overflow-y-auto p-6 grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 content-start">
-        <button 
-          v-for="product in filteredProducts" 
-          :key="product.id"
-          @click="addToCart(product)"
-          class="bg-white p-4 rounded-xl border border-gray-200 hover:border-primary-600 shadow-sm transition-all active:scale-95 text-left flex flex-col h-32 relative group"
-        >
-          <div class="flex justify-between items-start mb-2">
-            <h4 class="text-base font-bold text-gray-800 line-clamp-2 leading-tight pr-2">{{ product.name }}</h4>
-          </div>
-          
-          <!-- Colored price bar at bottom like in image -->
-          <div class="absolute bottom-4 right-4 left-4 h-10 rounded-lg flex items-center justify-end px-4" :class="getProductColor(product.category)">
-            <span class="text-xl font-bold text-gray-700 opacity-90">{{ (product.priceCents / 100).toFixed(2) }} €</span>
-          </div>
-        </button>
+      <div v-else class="flex-1 flex overflow-hidden relative group/products">
+        <div class="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-4 z-10 pointer-events-none">
+          <button @click="scrollProducts('up')" class="pointer-events-auto w-14 h-14 bg-white/90 backdrop-blur border border-gray-200 shadow-lg rounded-full flex items-center justify-center text-gray-700 active:bg-primary-50 active:text-primary-600 active:scale-95 transition-all">
+            <ArrowUp class="w-8 h-8 pointer-events-none" />
+          </button>
+          <button @click="scrollProducts('down')" class="pointer-events-auto w-14 h-14 bg-white/90 backdrop-blur border border-gray-200 shadow-lg rounded-full flex items-center justify-center text-gray-700 active:bg-primary-50 active:text-primary-600 active:scale-95 transition-all">
+            <ArrowDown class="w-8 h-8 pointer-events-none" />
+          </button>
+        </div>
+        <div ref="productsContainer" class="flex-1 overflow-y-auto p-6 grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 content-start scrollbar-hide">
+          <button 
+            v-for="product in filteredProducts" 
+            :key="product.id"
+            @click="addToCart(product)"
+            class="bg-white p-4 rounded-xl border border-gray-200 hover:border-primary-600 shadow-sm transition-all active:scale-95 text-left flex flex-col h-32 relative group"
+          >
+            <div class="flex justify-between items-start mb-2">
+              <h4 class="text-base font-bold text-gray-800 line-clamp-2 leading-tight pr-2">{{ product.name }}</h4>
+            </div>
+            
+            <!-- Colored price bar at bottom like in image -->
+            <div class="absolute bottom-4 right-4 left-4 h-10 rounded-lg flex items-center justify-end px-4" :class="getProductColor(product.category)">
+              <span class="text-xl font-bold text-gray-700 opacity-90">{{ (product.priceCents / 100).toFixed(2) }} €</span>
+            </div>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -340,35 +367,45 @@ const getProductColor = (category: string) => {
       </div>
 
       <!-- Cart Items -->
-      <div class="flex-1 overflow-y-auto p-6 space-y-6">
-        <div v-if="cart.length === 0" class="h-full flex flex-col items-center justify-center opacity-40">
-          <ShoppingCart class="w-20 h-20 mb-4" />
-          <p class="text-xl font-bold text-center">Votre panier est vide</p>
-          <p class="text-center">Sélectionnez des produits à gauche</p>
+      <div class="flex-1 flex overflow-hidden relative group/cart">
+        <div class="absolute right-1 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-10 pointer-events-none">
+          <button @click="scrollCart('up')" class="pointer-events-auto w-10 h-10 bg-white/90 backdrop-blur border border-gray-200 shadow-lg rounded-full flex items-center justify-center text-gray-700 active:bg-primary-50 active:text-primary-600 active:scale-95 transition-all">
+            <ArrowUp class="w-5 h-5 pointer-events-none" />
+          </button>
+          <button @click="scrollCart('down')" class="pointer-events-auto w-10 h-10 bg-white/90 backdrop-blur border border-gray-200 shadow-lg rounded-full flex items-center justify-center text-gray-700 active:bg-primary-50 active:text-primary-600 active:scale-95 transition-all">
+            <ArrowDown class="w-5 h-5 pointer-events-none" />
+          </button>
         </div>
 
-        <div v-for="item in cart" :key="item.id" class="flex flex-col gap-3 group/item">
-          <div class="flex justify-between items-start">
-            <div class="flex-1 pr-4">
-              <p class="font-bold text-gray-800 text-lg leading-tight">{{ item.name }}</p>
-              <p class="text-gray-500 font-medium">{{ item.price.toFixed(2) }} € / unité</p>
-            </div>
-            <button @click="removeFromCart(item.id)" class="text-gray-400 hover:text-red-500 transition-colors p-1">
-              <Trash2 class="w-5 h-5" />
-            </button>
+        <div ref="cartContainer" class="flex-1 overflow-y-auto p-4 pr-12 space-y-0 scrollbar-hide">
+          <div v-if="cart.length === 0" class="h-full flex flex-col items-center justify-center opacity-40">
+            <ShoppingCart class="w-20 h-20 mb-4" />
+            <p class="text-xl font-bold text-center">Votre panier est vide</p>
+            <p class="text-center">Sélectionnez des produits à gauche</p>
           </div>
-          
-          <div class="flex items-center justify-between">
-            <div class="flex items-center bg-gray-50 rounded-xl p-1">
-              <button @click="updateQuantity(item.id, -1)" class="p-2 hover:bg-white rounded-lg transition-colors">
-                <Minus class="w-5 h-5" />
+
+          <div v-for="item in cart" :key="item.id" class="flex items-center gap-2 py-3 border-b border-gray-100 last:border-0 group/item">
+            <div class="flex-1 font-bold text-gray-800 text-lg truncate" :title="item.name">
+              {{ item.name }}
+            </div>
+            
+            <div class="flex items-center bg-gray-50 rounded-lg p-0.5 shrink-0">
+              <button @click="updateQuantity(item.id, -1)" class="p-1 hover:bg-white rounded transition-colors" :disabled="item.quantity <= 1">
+                <Minus class="w-4 h-4" />
               </button>
-              <span class="w-10 text-center font-bold text-xl">{{ item.quantity }}</span>
-              <button @click="updateQuantity(item.id, 1)" class="p-2 hover:bg-white rounded-lg transition-colors">
-                <Plus class="w-5 h-5" />
+              <span class="w-6 text-center font-bold text-base">{{ item.quantity }}</span>
+              <button @click="updateQuantity(item.id, 1)" class="p-1 hover:bg-white rounded transition-colors">
+                <Plus class="w-4 h-4" />
               </button>
             </div>
-            <p class="text-xl font-black text-gray-900">{{ (item.price * item.quantity).toFixed(2) }} €</p>
+
+            <div class="text-base font-black text-gray-900 min-w-[60px] text-right shrink-0 tabular-nums">
+              {{ (item.price * item.quantity).toFixed(2) }} €
+            </div>
+
+            <button @click="removeFromCart(item.id)" class="text-gray-400 hover:text-red-500 transition-colors p-1 shrink-0 ml-1">
+              <Trash2 class="w-4 h-4" />
+            </button>
           </div>
         </div>
       </div>
