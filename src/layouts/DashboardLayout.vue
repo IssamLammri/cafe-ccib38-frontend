@@ -50,8 +50,10 @@ const handleLogout = () => {
     <aside 
       class="bg-gray-900 text-white flex flex-col w-20 transition-all duration-300 ease-in-out shrink-0"
     >
-      <div class="p-6 flex items-center justify-center">
-        <div class="w-8 h-8 bg-primary-600 rounded flex items-center justify-center font-bold">P</div>
+      <div class="p-4 flex items-center justify-center">
+        <div class="w-12 h-12 bg-white rounded-xl shadow flex items-center justify-center p-1">
+          <img src="https://www.ccib38.fr/wp-content/uploads/2025/05/cropped-logoccib38-3-1.png" alt="CCIB38" class="max-w-full max-h-full object-contain" />
+        </div>
       </div>
 
       <nav class="flex-1 mt-4 px-3 space-y-2">

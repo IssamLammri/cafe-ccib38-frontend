@@ -24,9 +24,7 @@ const handleSubmit = async () => {
   <div class="min-h-screen bg-bg-base flex items-center justify-center p-6">
     <div class="w-full max-w-md bg-white rounded-3xl shadow-xl p-10 border border-gray-100">
       <div class="text-center mb-10">
-        <div class="w-20 h-20 bg-primary-600 rounded-2xl mx-auto flex items-center justify-center mb-6 shadow-lg shadow-primary-600/20">
-          <span class="text-3xl font-bold text-white">PV</span>
-        </div>
+        <img src="https://www.ccib38.fr/wp-content/uploads/2025/05/cropped-logoccib38-3-1.png" alt="CCIB38" class="h-20 mx-auto mb-6 object-contain" />
         <h1 class="text-3xl font-bold text-gray-900">Connexion</h1>
         <p class="text-gray-500 mt-2 text-lg">Caisse Enregistreuse Tactile</p>
       </div>

@@ -104,10 +104,7 @@ watch(pin, async (newPin) => {
     <div class="w-full max-w-4xl">
       <!-- Header -->
       <div class="text-center mb-12">
-        <div class="w-24 h-24 bg-primary-600 rounded-3xl mx-auto flex items-center justify-center mb-6 shadow-xl shadow-primary-600/30">
-          <span class="text-4xl font-bold text-white">PV</span>
-        </div>
-        <h1 class="text-4xl font-black text-gray-900 tracking-tight">Point de Vente</h1>
+        <img src="https://www.ccib38.fr/wp-content/uploads/2025/05/cropped-logoccib38-3-1.png" alt="CCIB38" class="h-28 mx-auto mb-6 object-contain" />
         <p class="text-gray-500 mt-3 text-xl font-medium">Sélectionnez votre profil ou connectez-vous</p>
       </div>
 
