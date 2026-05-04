@@ -57,7 +57,7 @@ const fetchDiscounts = async () => {
   loading.value = true;
   error.value = '';
   try {
-    const response = await api.get('/discount_beneficiaries');
+    const response = await api.get('/discount_beneficiaries?pagination=false');
     const items: Discount[] = response.data['hydra:member'] || response.data['member'] || response.data || [];
     discounts.value = items;
   } catch (err: any) {

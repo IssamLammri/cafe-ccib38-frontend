@@ -60,7 +60,7 @@ const fetchSellers = async () => {
   loading.value = true;
   error.value = '';
   try {
-    const response = await api.get('/users');
+    const response = await api.get('/users?pagination=false');
     const allUsers: User[] = response.data['hydra:member'] || response.data['member'] || response.data || [];
     // Only display non-admin users (or those without ROLE_ADMIN in their explicit roles, if provided)
     // Here we'll just display everyone for now, or filter if we can tell.

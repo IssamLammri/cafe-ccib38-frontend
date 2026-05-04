@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, nextTick } from 'vue';
 import { 
   Search, 
   Trash2, 
@@ -80,12 +80,16 @@ const filteredProducts = computed(() => {
 
 const cart = ref<any[]>([]);
 
-const addToCart = (product: Product) => {
+const addToCart = async (product: Product) => {
   const existing = cart.value.find(item => item.id === product.id);
   if (existing) {
     existing.quantity++;
   } else {
     cart.value.push({ ...product, quantity: 1, price: product.priceCents / 100 });
+    await nextTick();
+    if (cartContainer.value) {
+      cartContainer.value.scrollTo({ top: cartContainer.value.scrollHeight, behavior: 'smooth' });
+    }
   }
 };
 
@@ -122,8 +126,8 @@ const fetchData = async () => {
   error.value = '';
   try {
     const [productsRes, discountsRes, settingsRes] = await Promise.all([
-      api.get('/products?active=true'),
-      api.get('/discount_beneficiaries?active=true'),
+      api.get('/products?active=true&pagination=false'),
+      api.get('/discount_beneficiaries?active=true&pagination=false'),
       api.get('/settings/1').catch(() => null) // Settings max not exist at first
     ]);
 
@@ -219,7 +223,7 @@ const submitOrder = async () => {
     
     let agentUri = null;
     try {
-      const usersRes = await api.get('/users');
+      const usersRes = await api.get('/users?pagination=false');
       const users = usersRes.data['hydra:member'] || usersRes.data['member'] || usersRes.data || [];
       const currentUser = users.find((u: any) => u.email === authStore.user?.email || u.username === authStore.user?.username);
       if (currentUser) {
@@ -278,7 +282,7 @@ const submitOrder = async () => {
 
 const fetchDebtAccounts = async () => {
   try {
-    const res = await api.get('/customer_debt_accounts');
+    const res = await api.get('/customer_debt_accounts?pagination=false');
     debtAccounts.value = res.data['hydra:member'] || res.data['member'] || res.data || [];
   } catch(e) {
     console.error(e);

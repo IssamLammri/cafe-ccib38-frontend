@@ -56,7 +56,7 @@ const fetchProducts = async () => {
   loading.value = true;
   error.value = '';
   try {
-    const response = await api.get('/products');
+    const response = await api.get('/products?pagination=false');
     products.value = response.data['hydra:member'] || response.data['member'] || response.data || [];
   } catch (err: any) {
     error.value = 'Erreur lors du chargement des produits.';
@@ -106,6 +106,7 @@ const saveProduct = async () => {
       const id = currentProduct.value.id;
       // Filter out properties that shouldn't be sent
       const { '@id': _, '@context': __, '@type': ___, id: ____, ...payload } = currentProduct.value as any;
+      payload.priceCents = parseInt(String(payload.priceCents), 10) || 0;
       await api.patch(`/products/${id}`, payload, {
         headers: {
           'Content-Type': 'application/merge-patch+json'
@@ -113,13 +114,14 @@ const saveProduct = async () => {
       });
     } else {
       const { id: _, ...payload } = currentProduct.value as any;
+      payload.priceCents = parseInt(String(payload.priceCents), 10) || 0;
       await api.post('/products', payload);
     }
     await fetchProducts();
     closeModal();
   } catch (err: any) {
     console.error(err);
-    saveError.value = "Erreur lors de l'enregistrement du produit.";
+    saveError.value = err.response?.data?.['hydra:description'] || err.response?.data?.message || err.message || "Erreur lors de l'enregistrement du produit.";
   } finally {
     isSubmitting.value = false;
   }
@@ -270,10 +272,6 @@ const getStatusClass = (active: boolean) => {
         </div>
         
         <div class="p-8 space-y-6 overflow-y-auto">
-          <div v-if="saveError" class="p-4 bg-red-50 text-red-700 font-bold rounded-xl border border-red-100">
-            {{ saveError }}
-          </div>
-
           <div>
             <label class="block text-sm font-bold text-gray-700 mb-2">Nom du produit *</label>
             <input 
@@ -322,22 +320,27 @@ const getStatusClass = (active: boolean) => {
           </div>
         </div>
         
-        <div class="p-6 border-t border-gray-100 bg-gray-50 flex justify-end gap-4">
-          <button 
-            @click="closeModal" 
-            class="px-8 py-3.5 bg-white border-2 border-gray-200 text-gray-700 font-bold rounded-xl hover:border-gray-300 hover:bg-gray-50 transition-colors"
-            :disabled="isSubmitting"
-          >
-            Annuler
-          </button>
-          <button 
-            @click="saveProduct" 
-            class="px-8 py-3.5 bg-primary-600 text-white font-bold rounded-xl hover:bg-primary-700 shadow-lg shadow-primary-600/20 transition-all disabled:opacity-50 flex items-center gap-2"
-            :disabled="isSubmitting"
-          >
-            <Loader2 v-if="isSubmitting" class="w-5 h-5 animate-spin" />
-            {{ isSubmitting ? 'Enregistrement...' : (isEditing ? 'Mettre à jour' : 'Créer le produit') }}
-          </button>
+        <div class="p-6 border-t border-gray-100 bg-gray-50 flex flex-col gap-4">
+          <div v-if="saveError" class="p-3 bg-red-50 text-red-700 font-bold rounded-xl border border-red-100 text-sm">
+            {{ saveError }}
+          </div>
+          <div class="flex justify-end gap-4">
+            <button 
+              @click="closeModal" 
+              class="px-8 py-3.5 bg-white border-2 border-gray-200 text-gray-700 font-bold rounded-xl hover:border-gray-300 hover:bg-gray-50 transition-colors"
+              :disabled="isSubmitting"
+            >
+              Annuler
+            </button>
+            <button 
+              @click="saveProduct" 
+              class="px-8 py-3.5 bg-primary-600 text-white font-bold rounded-xl hover:bg-primary-700 shadow-lg shadow-primary-600/20 transition-all disabled:opacity-50 flex items-center gap-2"
+              :disabled="isSubmitting"
+            >
+              <Loader2 v-if="isSubmitting" class="w-5 h-5 animate-spin" />
+              {{ isSubmitting ? 'Enregistrement...' : (isEditing ? 'Mettre à jour' : 'Créer le produit') }}
+            </button>
+          </div>
         </div>
       </div>
     </div>

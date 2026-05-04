@@ -239,8 +239,8 @@ const fetchOrders = async () => {
   error.value = '';
   try {
     const [ordersRes, usersRes] = await Promise.all([
-      api.get('/orders'),
-      api.get('/users').catch(() => ({ data: [] }))
+      api.get('/orders?pagination=false'),
+      api.get('/users?pagination=false').catch(() => ({ data: [] }))
     ]);
     const fetchedOrders = ordersRes.data['hydra:member'] || ordersRes.data['member'] || ordersRes.data || [];
     orders.value = fetchedOrders.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
